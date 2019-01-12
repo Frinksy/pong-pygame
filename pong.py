@@ -112,10 +112,10 @@ class Pong(object):
         # moves the player if it isn't human
         if self.bot:
             if bally < self.rect.y+100 and self.rect.y > 5:
-                self.rect.move_ip(0, -6)
+                self.rect.move_ip(0, -7)
 
             if bally > self.rect.y+100 and self.rect.y < height-205:
-                self.rect.move_ip(0, 6)
+                self.rect.move_ip(0, 7)
 
 # Initializing players and loop
 running = True
