@@ -30,25 +30,31 @@ class Ball(object):
 
     def __init__(self):  # initializes the ball object
         self.rect = Rect(width/2-7, height/2-7, 15, 15)  # the ball's rectangle that is drawn to the screen
-        self.vely = choice([7, -7])  # the ball's velocity on the y axis
-        self.velx = choice([7, -7])  # the ball's velocity on the y axis
+        self.vely = choice([5, -5])  # the ball's velocity on the y axis
+        self.velx = choice([5, -5])  # the ball's velocity on the y axis
 
     def draw(self):  # draws the ball to the screen
         pygame.draw.rect(screen, [255, 255, 255], self.rect)
 
     def move(self, p1, p2):  # moves the ball according to it's velocity on the x and y axii and makes it bounce
         self.rect.move_ip(self.velx, self.vely)
+
+        # Check for collisions with border
         if self.rect.x < 0 or self.rect.x > width:
             self.velx = -self.velx
         if self.rect.y < 0 or self.rect.y > width:
             self.vely = -self.vely
-        if self.rect.colliderect(p2) or self.rect.colliderect(p1):
-            self.velx = -self.velx
-            if self.rect.colliderect(p1):
-                self.vely = (self.rect.centery - p1.rect.centery)*0.1
 
-            elif self.rect.colliderect(p2):
-                self.vely = (self.rect.centery - p2.rect.centery)*0.1
+        # Check for collisions with players
+        if self.rect.colliderect(p1):
+            self.vely = (self.rect.centery - p1.rect.centery)*0.1
+            self.velx = abs(self.velx)
+        elif self.rect.colliderect(p2):
+            self.vely = (self.rect.centery - p2.rect.centery)*0.1
+            self.velx = -abs(self.velx)
+        # Increase velocity
+        if abs(self.velx) < 40:
+            self.velx *= 1.001
 
     def check_ig(self, p1=None, p2=None):  # checks if the ball is still in game
         if self.rect.x < 0:  # if player 2 wins
