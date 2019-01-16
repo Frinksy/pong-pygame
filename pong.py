@@ -42,8 +42,10 @@ class Ball(object):
         # Check for collisions with border
         if self.rect.x < 0 or self.rect.x > width:
             self.velx = -self.velx
-        if self.rect.y < 0 or self.rect.y > width:
-            self.vely = -self.vely
+        if self.rect.y < 0:
+            self.vely = abs(self.vely)
+        elif self.rect.y > width:
+            self.vely = -abs(self.vely)
 
         # Check for collisions with players
         if self.rect.colliderect(p1):
