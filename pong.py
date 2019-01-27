@@ -4,6 +4,7 @@ from pygame.locals import *
 from random import choice
 
 pygame.init()  # initializes pygame module and different elements and variables for the game
+pygame.mouse.set_visible(False)  # make the cursor invisible
 height = 800
 width = 800
 screen = pygame.display.set_mode((width, height), FULLSCREEN)
@@ -80,7 +81,7 @@ class Pong(object):
         self.scorefont = pygame.font.SysFont(name, 40)  # the player's font that is used to render and draw the score
         self.bot = bot  # true if the player is not human (default is true)
         self.win_msg = "{0} wins the round".format(self.name)
-        self.msg_font = pygame.font.SysFont("end_msgfont", 40)
+        self.msg_font = pygame.font.Font("kemco.ttf", 40)
 
     def draw_score(self):  # draws the player's score
 
@@ -166,6 +167,7 @@ pygame.display.update()
 
 # Set up player choice
 mode = 0  # 0 is singleplayer | 1 is multiplayer
+running = True
 
 while inMenu:
 
@@ -195,8 +197,6 @@ while inMenu:
     menu_clock.tick(30)
 
 
-# Initializing players and loop
-running = True
 # Intialise Singleplayer
 if mode == 0:
     player1 = Pong("Player 1", width * 0.02, height / 2, False)
