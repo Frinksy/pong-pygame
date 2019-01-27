@@ -100,16 +100,6 @@ class Pong(object):
         pygame.draw.rect(screen, [255, 255, 255], self.rect)
         self.draw_score()
 
-    def handle_keys(self):
-        # handles the keys pressed by the user and moves the player's racket up or down accordingly
-        if not self.bot:
-            k = pygame.key.get_pressed()
-            if k[K_UP] and self.rect.y > 0:
-                self.rect.move_ip(0, -9)
-
-            if k[K_DOWN] and self.rect.y < height-200:
-                self.rect.move_ip(0, 9)
-
     def move(self, bally):
         # moves the player if it isn't human
         if self.bot:
@@ -118,11 +108,103 @@ class Pong(object):
 
             if bally > self.rect.y+100 and self.rect.y < height-205:
                 self.rect.move_ip(0, 7)
+        # moves the ball if the player is human        
+        elif mode == 1:
+            if self.name == "Player 2":
+                k = pygame.key.get_pressed()
+                if k[K_UP] and self.rect.y > 0:
+                    self.rect.move_ip(0, -9)
+
+                if k[K_DOWN] and self.rect.y < height - 200:
+                    self.rect.move_ip(0, 9)
+            else:
+                k = pygame.key.get_pressed()
+                if k[K_e] and self.rect.y > 0:
+                    self.rect.move_ip(0, -9)
+
+                if k[K_d] and self.rect.y < height - 200:
+                    self.rect.move_ip(0, 9)
+        elif mode == 0:
+            k = pygame.key.get_pressed()
+            if k[K_UP] and self.rect.y > 0:
+                self.rect.move_ip(0, -9)
+
+            if k[K_DOWN] and self.rect.y < height - 200:
+                self.rect.move_ip(0, 9)
+
+# Menu loop
+inMenu = True
+
+
+# Generate text
+kemco = pygame.font.Font("kemco.ttf", 64)
+title_text = kemco.render("PONG-PYGAME", False, (255, 255, 255))
+title_width = kemco.size("PONG-PYGAME")[0]
+
+singleplayer_text = kemco.render("1-PLAYER", False, (255, 255, 255))
+singleplayer_text_grey = kemco.render("1-PLAYER", False, (100, 100, 100))
+singleplayer_text_width = kemco.size("1-PLAYER")[0]
+
+twoplayer_text = kemco.render("2-PLAYER", False, (255, 255, 255))
+twoplayer_text_grey = kemco.render("2-PLAYER", False, (100, 100, 100))
+twoplayer_text_width = kemco.size("2-Player")[0]
+
+
+
+# Initialise menu screen
+menu_clock = pygame.time.Clock()
+
+pygame.Surface.fill(screen, (0, 0, 0))
+screen.blit(title_text, ((width-title_width)/2, 100))
+screen.blit(singleplayer_text, ( (width - singleplayer_text_width) / 2, 300))
+screen.blit(twoplayer_text_grey, ( (width - twoplayer_text_width) / 2, 500))
+
+
+pygame.display.update()
+
+
+
+# Set up player choice
+mode = 0  # 0 is singleplayer | 1 is multiplayer
+
+while inMenu:
+
+    
+    key = pygame.key.get_pressed()
+
+    if key[K_ESCAPE]:  # Quit game if user presses "ESC"
+        inMenu = False
+        running = False
+
+    elif key[K_RETURN]:
+        inMenu = False
+
+    elif key[K_DOWN] and mode == 0:
+        mode = 1
+        screen.blit(singleplayer_text_grey, ( (width - singleplayer_text_width) / 2, 300) )
+        screen.blit(twoplayer_text, ( (width - twoplayer_text_width) / 2, 500) )
+        pygame.display.update()
+        
+    elif key[K_UP] and mode == 1:
+        mode = 0
+        screen.blit(singleplayer_text, ( (width - singleplayer_text_width) / 2, 300) )
+        screen.blit(twoplayer_text_grey, ( (width - twoplayer_text_width) / 2, 500) )
+        pygame.display.update()
+
+    pygame.event.pump() # Pygame blackmagic
+    menu_clock.tick(30)
+
 
 # Initializing players and loop
 running = True
-player1 = Pong("Player 1", width * 0.02, height / 2, False)
-player2 = Pong("Player 2", width * 0.98 - 20, height / 2, True)
+# Intialise Singleplayer
+if mode == 0:
+    player1 = Pong("Player 1", width * 0.02, height / 2, False)
+    player2 = Pong("Player 2", width * 0.98 - 20, height / 2, True)
+# Initialise Mutliplayer
+elif mode == 1:
+    player1 = Pong("Player 1", width * 0.02, height /2, False)
+    player2 = Pong("Player 2", width * 0.98 - 20, height / 2, False)
 
 while running:  # main game loop
     pygame.Surface.fill(screen, [0, 0, 0])  # clears the screen
@@ -169,7 +251,6 @@ while running:  # main game loop
         # moves then draws each element of the game (players and ball)
         ball.move(player1, player2)
         ball.draw()
-        player1.handle_keys()
         player1.move(ball.rect.y)
         player1.draw()
         player2.move(ball.rect.y)
