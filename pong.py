@@ -7,9 +7,12 @@ pygame.init()  # initializes pygame module and different elements and variables 
 pygame.mouse.set_visible(False)  # make the cursor invisible
 height = 800
 width = 800
-screen = pygame.display.set_mode((width, height), FULLSCREEN)
+screen = pygame.display.set_mode((width, height))
 arena = Rect(0, 0, height, width)  # the game's court
 centerline = Rect(width/2, 0, 1, width)  # the game's court's centerline
+
+
+dirty_rects = []
 
 
 def update_scores(b, p1, p2):  # updates the scores of 2 players by using the ball's x value if the ball isn't in-game
@@ -38,8 +41,10 @@ class Ball(object):
         pygame.draw.rect(screen, [255, 255, 255], self.rect)
 
     def move(self, p1, p2):  # moves the ball according to it's velocity on the x and y axii and makes it bounce
+        
+        dirty_rects.append(Rect(self.rect))
         self.rect.move_ip(self.velx, self.vely)
-
+        dirty_rects.append(Rect(self.rect))
         # Check for collisions with border
         if self.rect.x < 0 or self.rect.x > width:
             self.velx = -self.velx
@@ -91,9 +96,10 @@ class Pong(object):
         # pastes the surface to the right position on the screen depending on the player's name
         if self.name == "Player 1":
             screen.blit(scoresurface, (width/4, 60))
+            dirty_rects.append((width/4, 60, 60, 60))
         elif self.name == "Player 2":
             screen.blit(scoresurface, (width*0.75, 60))
-
+            dirty_rects.append((width*0.75, 60, 60, 60))
     def reset(self):
         self.rect = Rect(self.posx, self.posy - 100, 20, 200)
 
@@ -102,6 +108,7 @@ class Pong(object):
         self.draw_score()
 
     def move(self, bally):
+        dirty_rects.append(Rect(self.rect))
         # moves the player if it isn't human
         if self.bot:
             if bally < self.rect.y+100 and self.rect.y > 5:
@@ -132,6 +139,8 @@ class Pong(object):
 
             if k[K_DOWN] and self.rect.y < height - 200:
                 self.rect.move_ip(0, 9)
+
+        dirty_rects.append(Rect(self.rect))
 
 # Menu loop
 inMenu = True
@@ -264,4 +273,5 @@ while running:  # main game loop
             new_round = False
 
         # finally refreshes the whole screen
-        pygame.display.flip()
+        pygame.display.update(dirty_rects)
+        dirty_rects = []
