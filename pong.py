@@ -7,7 +7,7 @@ pygame.init()  # initializes pygame module and different elements and variables 
 pygame.mouse.set_visible(False)  # make the cursor invisible
 height = 800
 width = 800
-screen = pygame.display.set_mode((width, height))
+screen = pygame.display.set_mode((width, height), FULLSCREEN)
 arena = Rect(0, 0, height, width)  # the game's court
 centerline = Rect(width/2, 0, 1, width)  # the game's court's centerline
 
