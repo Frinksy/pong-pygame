@@ -5,11 +5,19 @@ from random import choice
 
 pygame.init()  # initializes pygame module and different elements and variables for the game
 pygame.mouse.set_visible(False)  # make the cursor invisible
+
+WIDTH, HEIGHT = pygame.display.list_modes()[0]
+
+print(WIDTH, HEIGHT)
+
+RATIO = HEIGHT/800
+OFFSET = (WIDTH-HEIGHT)/2
+
 height = 800
 width = 800
-screen = pygame.display.set_mode((width, height), FULLSCREEN)
-arena = Rect(0, 0, height, width)  # the game's court
-centerline = Rect(width/2, 0, 1, width)  # the game's court's centerline
+screen = pygame.display.set_mode((WIDTH, HEIGHT), FULLSCREEN)
+arena = Rect(OFFSET, 0, HEIGHT, HEIGHT)  # the game's court
+centerline = Rect(HEIGHT/2 + OFFSET, 0, 1, HEIGHT)  # the game's court's centerline
 
 
 dirty_rects = []
@@ -34,17 +42,22 @@ class Ball(object):
 
     def __init__(self):  # initializes the ball object
         self.rect = Rect(width/2-7, height/2-7, 15, 15)  # the ball's rectangle that is drawn to the screen
-        self.vely = choice([5, -5])  # the ball's velocity on the y axis
-        self.velx = choice([5, -5])  # the ball's velocity on the y axis
+        self.vely = choice([2, -2])  # the ball's velocity on the y axis
+        self.velx = choice([2, -2])  # the ball's velocity on the y axis
+        self.width = 15*RATIO
+        self.height = 15*RATIO
 
     def draw(self):  # draws the ball to the screen
-        pygame.draw.rect(screen, [255, 255, 255], self.rect)
-
+        # pygame.draw.rect(screen, [255, 255, 255], self.rect)
+        pygame.draw.rect(screen, (255, 255, 255), (self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
     def move(self, p1, p2):  # moves the ball according to it's velocity on the x and y axii and makes it bounce
         
-        dirty_rects.append(Rect(self.rect))
+        # dirty_rects.append(Rect(self.rect))
+        dirty_rects.append((self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
         self.rect.move_ip(self.velx, self.vely)
-        dirty_rects.append(Rect(self.rect))
+        # dirty_rects.append(Rect(self.rect))
+        dirty_rects.append((self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
+        
         # Check for collisions with border
         if self.rect.x < 0 or self.rect.x > width:
             self.velx = -self.velx
@@ -55,14 +68,14 @@ class Ball(object):
 
         # Check for collisions with players
         if self.rect.colliderect(p1):
-            self.vely = (self.rect.centery - p1.rect.centery)*0.1
+            self.vely = (self.rect.centery - p1.rect.centery)*0.05
             self.velx = abs(self.velx)
         elif self.rect.colliderect(p2):
-            self.vely = (self.rect.centery - p2.rect.centery)*0.1
+            self.vely = (self.rect.centery - p2.rect.centery)*0.05
             self.velx = -abs(self.velx)
         # Increase velocity
-        if abs(self.velx) < 40:
-            self.velx *= 1.001
+        if abs(self.velx) < 35:
+            self.velx *= 1.0005
 
     def check_ig(self, p1=None, p2=None):  # checks if the ball is still in game
         if self.rect.x < 0:  # if player 2 wins
@@ -83,10 +96,13 @@ class Pong(object):
         self.posy = posy  # the player's positon on the y axis
         self.rect = Rect(self.posx, self.posy-100, 20, 200)  # the player's racket that is drawn
         self.score = 0  # the player's score
-        self.scorefont = pygame.font.SysFont(name, 40)  # the player's font that is used to render and draw the score
+        self.scorefont = pygame.font.Font("kemco.ttf", int(40*RATIO))  # the player's font that is used to render and draw the score
         self.bot = bot  # true if the player is not human (default is true)
         self.win_msg = "{0} wins the round".format(self.name)
         self.msg_font = pygame.font.Font("kemco.ttf", 40)
+
+        self.width = 20*RATIO
+        self.height = 200*RATIO
 
     def draw_score(self):  # draws the player's score
 
@@ -95,59 +111,62 @@ class Pong(object):
 
         # pastes the surface to the right position on the screen depending on the player's name
         if self.name == "Player 1":
-            screen.blit(scoresurface, (width/4, 60))
-            dirty_rects.append((width/4, 60, 60, 60))
+            screen.blit(scoresurface, (HEIGHT/4+OFFSET, 60*RATIO))
+            dirty_rects.append((WIDTH/4+OFFSET, 60*RATIO, 60*RATIO, 60*RATIO))
         elif self.name == "Player 2":
-            screen.blit(scoresurface, (width*0.75, 60))
+            screen.blit(scoresurface, (HEIGHT*0.75+OFFSET, 60))
             dirty_rects.append((width*0.75, 60, 60, 60))
     def reset(self):
         self.rect = Rect(self.posx, self.posy - 100, 20, 200)
 
     def draw(self):
-        pygame.draw.rect(screen, [255, 255, 255], self.rect)
+        # pygame.draw.rect(screen, [255, 255, 255], self.rect)
+        pygame.draw.rect(screen,  (255, 255, 255), (self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
         self.draw_score()
 
     def move(self, bally):
-        dirty_rects.append(Rect(self.rect))
+        # dirty_rects.append(Rect(self.rect))
+        dirty_rects.append((self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
         # moves the player if it isn't human
         if self.bot:
             if bally < self.rect.y+100 and self.rect.y > 5:
-                self.rect.move_ip(0, -7)
+                self.rect.move_ip(0, -4)
 
             if bally > self.rect.y+100 and self.rect.y < height-205:
-                self.rect.move_ip(0, 7)
+                self.rect.move_ip(0, 4)
         # moves the ball if the player is human        
         elif mode == 1:
             if self.name == "Player 2":
                 k = pygame.key.get_pressed()
                 if k[K_UP] and self.rect.y > 0:
-                    self.rect.move_ip(0, -9)
+                    self.rect.move_ip(0, -5)
 
                 if k[K_DOWN] and self.rect.y < height - 200:
-                    self.rect.move_ip(0, 9)
+                    self.rect.move_ip(0, 5)
             else:
                 k = pygame.key.get_pressed()
                 if k[K_e] and self.rect.y > 0:
-                    self.rect.move_ip(0, -9)
+                    self.rect.move_ip(0, -5)
 
                 if k[K_d] and self.rect.y < height - 200:
-                    self.rect.move_ip(0, 9)
+                    self.rect.move_ip(0, 5)
         elif mode == 0:
             k = pygame.key.get_pressed()
             if k[K_UP] and self.rect.y > 0:
-                self.rect.move_ip(0, -9)
+                self.rect.move_ip(0, -5)
 
             if k[K_DOWN] and self.rect.y < height - 200:
-                self.rect.move_ip(0, 9)
+                self.rect.move_ip(0, 5)
 
-        dirty_rects.append(Rect(self.rect))
+        # dirty_rects.append(Rect(self.rect))
+        dirty_rects.append((self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
 
 # Menu loop
 inMenu = True
 
 
 # Generate text
-kemco = pygame.font.Font("kemco.ttf", 64)
+kemco = pygame.font.Font("kemco.ttf", int(64*RATIO))
 title_text = kemco.render("PONG-PYGAME", False, (255, 255, 255))
 title_width = kemco.size("PONG-PYGAME")[0]
 
@@ -165,9 +184,9 @@ twoplayer_text_width = kemco.size("2-Player")[0]
 menu_clock = pygame.time.Clock()
 
 pygame.Surface.fill(screen, (0, 0, 0))
-screen.blit(title_text, ((width-title_width)/2, 100))
-screen.blit(singleplayer_text, ( (width - singleplayer_text_width) / 2, 300))
-screen.blit(twoplayer_text_grey, ( (width - twoplayer_text_width) / 2, 500))
+screen.blit(title_text, ((WIDTH-title_width)/2, int(100*RATIO)))
+screen.blit(singleplayer_text, ( (WIDTH - singleplayer_text_width) / 2, int(300*RATIO)))
+screen.blit(twoplayer_text_grey, ( (WIDTH - twoplayer_text_width) / 2, int(500*RATIO)))
 
 
 pygame.display.update()
@@ -192,14 +211,14 @@ while inMenu:
 
     elif key[K_DOWN] and mode == 0:
         mode = 1
-        screen.blit(singleplayer_text_grey, ( (width - singleplayer_text_width) / 2, 300) )
-        screen.blit(twoplayer_text, ( (width - twoplayer_text_width) / 2, 500) )
+        screen.blit(singleplayer_text_grey, ( (WIDTH - singleplayer_text_width) / 2, int(300*RATIO) ))
+        screen.blit(twoplayer_text, ( (WIDTH - twoplayer_text_width) / 2, int(500*RATIO)))
         pygame.display.update()
         
     elif key[K_UP] and mode == 1:
         mode = 0
-        screen.blit(singleplayer_text, ( (width - singleplayer_text_width) / 2, 300) )
-        screen.blit(twoplayer_text_grey, ( (width - twoplayer_text_width) / 2, 500) )
+        screen.blit(singleplayer_text, ( (WIDTH - singleplayer_text_width) / 2, int(300*RATIO)))
+        screen.blit(twoplayer_text_grey, ( (WIDTH - twoplayer_text_width) / 2, int(500*RATIO)))
         pygame.display.update()
 
     pygame.event.pump() # Pygame blackmagic
@@ -238,7 +257,7 @@ while running:  # main game loop
 
     while new_round:  # starts a new loop at each round
 
-        clock.tick(60)  # sets the tickrate for the game
+        clock.tick(120)  # sets the tickrate for the game
 
         # quits the game when necessary
         key = pygame.key.get_pressed()
