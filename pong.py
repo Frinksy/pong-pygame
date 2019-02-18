@@ -1,3 +1,5 @@
+#!/usr/bin/python 
+
 # imports necessary modules
 import pygame
 from pygame.locals import *
@@ -21,6 +23,62 @@ centerline = Rect(HEIGHT/2 + OFFSET, 0, 1, HEIGHT)  # the game's court's centerl
 
 
 dirty_rects = []
+
+def explode():
+
+    c  = pygame.time.Clock()
+    v = 2
+
+    
+    
+
+    if ball.rect.x <= 0:
+        x = OFFSET
+    else:
+        x = 800*RATIO + OFFSET
+    print(x, ball.rect.y*RATIO)
+    fragments = [Rect(x, ball.rect.y*RATIO, int(5*RATIO), int(5*RATIO)) for i in range(8)]
+    dirty_rects = []
+    dirty_rects.append(Rect(x, ball.rect.y*RATIO, 30*RATIO, 30*RATIO))
+
+    for i in range(120):
+        
+        c.tick(120)
+        
+        pygame.Surface.fill(screen, [0, 0, 0])
+        pygame.draw.rect(screen, [255, 255, 255], centerline)
+        pygame.draw.rect(screen, [255, 255, 255], arena, 10)
+        player1.draw()
+        player2.draw()
+
+        
+        for f in fragments:
+            dirty_rects.append(Rect(f))
+
+        
+        pygame.Surface.fill(screen, [0, 0, 0])
+        pygame.draw.rect(screen, [255, 255, 255], centerline)
+        pygame.draw.rect(screen, [255, 255, 255], arena, 10)
+
+        player1.draw()
+        player2.draw()
+
+        # Move the fragments
+        fragments[0].move_ip(-0, v)
+        fragments[1].move_ip(-v, 0)
+        fragments[2].move_ip(-v, -v)
+        fragments[3].move_ip(0, -v)
+        fragments[4].move_ip(0, v)
+        fragments[5].move_ip(v, -v)
+        fragments[6].move_ip(v, 0)
+        fragments[7].move_ip(v, v)
+
+        
+        for f in fragments:
+            pygame.draw.rect(screen, (255, 255, 255), f)
+            dirty_rects.append(Rect(f))
+
+        pygame.display.update(dirty_rects)
 
 
 def update_scores(b, p1, p2):  # updates the scores of 2 players by using the ball's x value if the ball isn't in-game
@@ -290,6 +348,7 @@ while running:  # main game loop
         # checks if a ball is in game; if not, the round ends
         if not ball.check_ig():
             new_round = False
+            explode()
 
         # finally refreshes the whole screen
         pygame.display.update(dirty_rects)
