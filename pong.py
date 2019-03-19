@@ -50,7 +50,8 @@ def explode():
         pygame.draw.rect(screen, [255, 255, 255], arena, 10)
         player1.draw()
         player2.draw()
-
+        player1.move(ball.rect.y)
+        player2.move(ball.rect.y)
         
         for f in fragments:
             dirty_rects.append(Rect(f))
