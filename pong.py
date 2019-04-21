@@ -1,4 +1,4 @@
-#!/usr/bin/python 
+#!/usr/bin/python
 
 # imports necessary modules
 import pygame
@@ -27,10 +27,10 @@ dirty_rects = []
 def explode():
 
     c  = pygame.time.Clock()
-    v = 2
+    v = 3
 
-    
-    
+
+
 
     if ball.rect.x <= 0:
         x = OFFSET
@@ -42,21 +42,19 @@ def explode():
     dirty_rects.append(Rect(x, ball.rect.y*RATIO, 30*RATIO, 30*RATIO))
 
     for i in range(120):
-        
+
         c.tick(120)
-        
+
         pygame.Surface.fill(screen, [0, 0, 0])
         pygame.draw.rect(screen, [255, 255, 255], centerline)
         pygame.draw.rect(screen, [255, 255, 255], arena, 10)
         player1.draw()
         player2.draw()
-        player1.move(ball.rect.y)
-        player2.move(ball.rect.y)
-        
+
         for f in fragments:
             dirty_rects.append(Rect(f))
 
-        
+
         pygame.Surface.fill(screen, [0, 0, 0])
         pygame.draw.rect(screen, [255, 255, 255], centerline)
         pygame.draw.rect(screen, [255, 255, 255], arena, 10)
@@ -65,16 +63,16 @@ def explode():
         player2.draw()
 
         # Move the fragments
-        fragments[0].move_ip(-0, v)
+        fragments[0].move_ip(-v*0.7, v*0.7)
         fragments[1].move_ip(-v, 0)
-        fragments[2].move_ip(-v, -v)
+        fragments[2].move_ip(-v*0.7, -v*0.7)
         fragments[3].move_ip(0, -v)
         fragments[4].move_ip(0, v)
-        fragments[5].move_ip(v, -v)
+        fragments[5].move_ip(v*0.7, -v*0.7)
         fragments[6].move_ip(v, 0)
-        fragments[7].move_ip(v, v)
+        fragments[7].move_ip(v*0.7, v*0.7)
 
-        
+
         for f in fragments:
             pygame.draw.rect(screen, (255, 255, 255), f)
             dirty_rects.append(Rect(f))
@@ -110,13 +108,13 @@ class Ball(object):
         # pygame.draw.rect(screen, [255, 255, 255], self.rect)
         pygame.draw.rect(screen, (255, 255, 255), (self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
     def move(self, p1, p2):  # moves the ball according to it's velocity on the x and y axii and makes it bounce
-        
+
         # dirty_rects.append(Rect(self.rect))
         dirty_rects.append((self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
         self.rect.move_ip(self.velx, self.vely)
         # dirty_rects.append(Rect(self.rect))
         dirty_rects.append((self.rect.x*RATIO + OFFSET, self.rect.y*RATIO, self.width, self.height))
-        
+
         # Check for collisions with border
         if self.rect.x < 0 or self.rect.x > width:
             self.velx = -self.velx
@@ -193,7 +191,7 @@ class Pong(object):
 
             if bally > self.rect.y+100 and self.rect.y < height-205:
                 self.rect.move_ip(0, 4)
-        # moves the ball if the player is human        
+        # moves the ball if the player is human
         elif mode == 1:
             if self.name == "Player 2":
                 k = pygame.key.get_pressed()
@@ -258,7 +256,7 @@ running = True
 
 while inMenu:
 
-    
+
     key = pygame.key.get_pressed()
 
     if key[K_ESCAPE]:  # Quit game if user presses "ESC"
@@ -273,7 +271,7 @@ while inMenu:
         screen.blit(singleplayer_text_grey, ( (WIDTH - singleplayer_text_width) / 2, int(300*RATIO) ))
         screen.blit(twoplayer_text, ( (WIDTH - twoplayer_text_width) / 2, int(500*RATIO)))
         pygame.display.update()
-        
+
     elif key[K_UP] and mode == 1:
         mode = 0
         screen.blit(singleplayer_text, ( (WIDTH - singleplayer_text_width) / 2, int(300*RATIO)))
